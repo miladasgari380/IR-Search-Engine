@@ -1,12 +1,16 @@
 import os
 import re
 import json
+import pickle
 from bs4 import BeautifulSoup
 from nltk.stem import PorterStemmer
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 
+# keep location of each token
+
 dataPath = '../raw-data'
+indexedDocumentsPath = '../indexed-data'
 
 
 def tokenizer(s):
@@ -36,6 +40,21 @@ def element_extractor(file, elements_list):
     return data
 
 
+def indexer(file_dict, extracted, type):
+    for i in range(len(extracted[type])):
+        stopwords_removed = stop_word_eliminator(extracted[type][i])
+        for token in stopwords_removed:
+            stemmed_token = stemmer(token)
+            if stemmed_token not in file_dict.keys():
+                file_dict[stemmed_token] = list()
+            info = dict()
+            info[type] = i
+            file_dict[stemmed_token].append(info)
+
+            # {token1: [{p:1}, {p:5}]}
+
+    return file_dict
+
 for folderName in os.listdir(os.path.join(os.getcwd(), dataPath)):
     if folderName.isdigit():
         if int(folderName) == 0: #remove in future
@@ -48,6 +67,8 @@ for folderName in os.listdir(os.path.join(os.getcwd(), dataPath)):
                             data = data_file.read()
                             data_file.close()
 
+                            inverted_index = dict() #for each file
+
                             soup = BeautifulSoup(data, "html.parser")
                             if soup.find('html') == None: #Non html files
                                 continue
@@ -55,7 +76,14 @@ for folderName in os.listdir(os.path.join(os.getcwd(), dataPath)):
                                 script.extract()
                             # print soup.prettify()
                             extracted = element_extractor(soup, ['p'])
-                            stopwords_removed = stop_word_eliminator(extracted['p'][0])
+                            inverted_index = indexer(inverted_index, extracted, 'p')
+
+                            if not os.path.exists(os.path.join(indexedDocumentsPath, folderName)):
+                                os.makedirs(os.path.join(indexedDocumentsPath, folderName))
+                            with open(os.path.join(indexedDocumentsPath, folderName, fileName), 'wb') as indexed_doc:
+                                pickle.dump(inverted_index, indexed_doc, pickle.HIGHEST_PROTOCOL)
+                                # pickle.load(indexed_doc)
+
                             # print list(soup.children)
 
                             # text = soup.get_text()

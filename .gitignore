@@ -43,10 +43,10 @@ crashlytics-build.properties
 fabric.properties
 
 raw-data/*
+indexed-data/*
 .idea/*
 
 .DS_Store
-=======
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
