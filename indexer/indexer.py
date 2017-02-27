@@ -55,45 +55,49 @@ def indexer(file_dict, extracted, type):
 
     return file_dict
 
-for folderName in os.listdir(os.path.join(os.getcwd(), dataPath)):
-    if folderName.isdigit():
-        if int(folderName) == 0: #remove in future
-            print "in folder: " + folderName
-            for fileName in os.listdir(os.path.join(os.getcwd(), dataPath, folderName)):
-                if fileName.isdigit():
-                    if int(fileName) == 3: #remove in future
-                        print "in file: " + fileName
-                        with open(os.path.join(dataPath, folderName, fileName), 'r') as data_file:
-                            data = data_file.read()
-                            data_file.close()
 
-                            inverted_index = dict() #for each file
+def main():
+    for folderName in os.listdir(os.path.join(os.getcwd(), dataPath)):
+        if folderName.isdigit():
+            if int(folderName) == 0: #remove in future
+                print "in folder: " + folderName
+                for fileName in os.listdir(os.path.join(os.getcwd(), dataPath, folderName)):
+                    if fileName.isdigit():
+                        if int(fileName) == 3: #remove in future
+                            print "in file: " + fileName
+                            with open(os.path.join(dataPath, folderName, fileName), 'r') as data_file:
+                                data = data_file.read()
+                                data_file.close()
 
-                            soup = BeautifulSoup(data, "html.parser")
-                            if soup.find('html') == None: #Non html files
-                                continue
-                            for script in soup(["script", "style"]):
-                                script.extract()
-                            # print soup.prettify()
-                            extracted = element_extractor(soup, ['p'])
-                            inverted_index = indexer(inverted_index, extracted, 'p')
+                                inverted_index = dict() #for each file
 
-                            if not os.path.exists(os.path.join(indexedDocumentsPath, folderName)):
-                                os.makedirs(os.path.join(indexedDocumentsPath, folderName))
-                            with open(os.path.join(indexedDocumentsPath, folderName, fileName), 'wb') as indexed_doc:
-                                pickle.dump(inverted_index, indexed_doc, pickle.HIGHEST_PROTOCOL)
-                                # pickle.load(indexed_doc)
+                                soup = BeautifulSoup(data, "html.parser")
+                                if soup.find('html') == None: #Non html files
+                                    continue
+                                for script in soup(["script", "style"]):
+                                    script.extract()
+                                # print soup.prettify()
+                                extracted = element_extractor(soup, ['p'])
+                                inverted_index = indexer(inverted_index, extracted, 'p')
 
-                            # print list(soup.children)
+                                if not os.path.exists(os.path.join(indexedDocumentsPath, folderName)):
+                                    os.makedirs(os.path.join(indexedDocumentsPath, folderName))
+                                with open(os.path.join(indexedDocumentsPath, folderName, fileName), 'wb') as indexed_doc:
+                                    pickle.dump(inverted_index, indexed_doc, pickle.HIGHEST_PROTOCOL)
+                                    # pickle.load(indexed_doc)
 
-                            # text = soup.get_text()
-                            # # break into lines and remove leading and trailing space on each
-                            # lines = (line.strip() for line in text.splitlines())
-                            # # break multi-headlines into a line each
-                            # chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-                            # # drop blank lines
-                            # text = '\n'.join(chunk for chunk in chunks if chunk)
-                            # print text
-                            #
-                            # print data_file
+                                # print list(soup.children)
 
+                                # text = soup.get_text()
+                                # # break into lines and remove leading and trailing space on each
+                                # lines = (line.strip() for line in text.splitlines())
+                                # # break multi-headlines into a line each
+                                # chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+                                # # drop blank lines
+                                # text = '\n'.join(chunk for chunk in chunks if chunk)
+                                # print text
+                                #
+                                # print data_file
+
+if __name__ == "__main__":
+    main()
