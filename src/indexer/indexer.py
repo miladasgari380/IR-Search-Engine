@@ -1,32 +1,13 @@
 import os
-import re
-import json
 import pickle
 from bs4 import BeautifulSoup
-from nltk.stem import PorterStemmer
-from nltk.tokenize import sent_tokenize, word_tokenize
-from nltk.corpus import stopwords
 
-# keep location of each token
+from indexer.tokenizer import stop_word_eliminator, stemmer
 
-dataPath = '../raw-data'
-indexedDocumentsPath = '../indexed-data'
+dataPath = '../../raw-data'
+indexedDocumentsPath = '../../indexed-data'
 
-
-def tokenizer(s):
-    words = word_tokenize(s)
-    return words
-
-
-def stemmer(s):
-    ps = PorterStemmer()
-    return ps.stem(s)
-
-
-def stop_word_eliminator(s):
-    stop = set(stopwords.words('english'))
-    without_stop = [i for i in s.lower().split() if i not in stop]
-    return without_stop
+# TODO: keep location of each token
 
 
 def element_extractor(file, elements_list):
