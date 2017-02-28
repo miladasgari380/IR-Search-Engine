@@ -9,8 +9,8 @@ from nltk.corpus import stopwords
 
 # keep location of each token
 
-dataPath = '../raw-data'
-indexedDocumentsPath = '../indexed-data'
+dataPath = '../../raw-data'
+indexedDocumentsPath = '../../indexed-data'
 
 
 def tokenizer(s):
