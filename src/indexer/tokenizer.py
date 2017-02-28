@@ -4,8 +4,9 @@ from nltk.tokenize import word_tokenize
 
 
 def tokenize(s):
-    words = word_tokenize(s)
-    return words
+    pass
+    # words = word_tokenize(s)
+    # return words
 
 
 def stemmer(s):

@@ -1,11 +1,60 @@
+import re
+from bs4 import BeautifulSoup
+from constants import RAW_DATA_BASE_PATH
+
+def visible(element):
+    if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
+        return False
+    # elif re.match("<!--.*-->", str(element)):
+    #     return False
+    return True
+
 def transform_html_to_dict(document_id):
-    pass
+    dict = {}
+    folder_name, file_name = unpack_document_id(document_id)
+    with open(RAW_DATA_BASE_PATH+"/"+folder_name+"/"+file_name, "r") as data_file:
+        data = data_file.read()
+        soup = BeautifulSoup(data, "html.parser")
+        for script in soup(["script", "style"]):
+            script.extract()
+
+        if soup.find('html') == None:  # Non html files
+            print "Not HTML file!"
+            return
+        dict['title'] = soup.title.string
+        desc = soup.find_all(attrs={"name": "description"})
+        if len(desc) > 0:
+            dict['description'] = desc[0]['content'].encode('utf-8')
+        else:
+            dict['description'] = None
+        keywords = soup.find_all(attrs={"name": "keywords"})
+        if len(keywords) > 0:
+            dict['keywords'] = keywords[0]['content'].encode('utf-8')
+        else:
+            dict['keywords'] = None
+
+        for script in soup(["title"]):
+            script.extract()
+
+        text = soup.get_text()
+        regex = re.compile('[^a-zA-Z]')
+        text = regex.sub(' ', text)
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = ' '.join(chunk for chunk in chunks if chunk)
+        # print text
+        dict['body'] = text
+    return dict
+
 
 def unpack_document_id(document_id):
-    pass
+    file_folder_info = document_id.split("/")
+    return file_folder_info[0], file_folder_info[1]
+
 
 def document_id(dir_name, file_name):
-    pass
+    return dir_name+"/"+file_name
+
 
 def store_html_dict(document_id, html_dict):
     pass

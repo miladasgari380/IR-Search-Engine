@@ -3,8 +3,8 @@ import pickle
 from bs4 import BeautifulSoup
 
 from constants import RAW_DATA_BASE_PATH, HTML_DICT_FIELDS_WEIGHT
-from indexer.html_parser import transform_html_to_dict, document_id, store_html_dict
-from indexer.tokenizer import stop_word_eliminator, stemmer, tokenize
+from src.indexer.html_parser import transform_html_to_dict, document_id, store_html_dict
+from src.indexer.tokenizer import stop_word_eliminator, stemmer, tokenize
 
 inverted_index = {}
 
