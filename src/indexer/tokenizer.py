@@ -3,7 +3,7 @@ from nltk.stem.porter import PorterStemmer
 from nltk.tokenize import word_tokenize
 
 
-def tokenizer(s):
+def tokenize(s):
     words = word_tokenize(s)
     return words
 

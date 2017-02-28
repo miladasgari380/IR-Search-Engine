@@ -2,83 +2,45 @@ import os
 import pickle
 from bs4 import BeautifulSoup
 
-from indexer.tokenizer import stop_word_eliminator, stemmer
+from constants import RAW_DATA_BASE_PATH, HTML_DICT_FIELDS_WEIGHT
+from indexer.html_parser import transform_html_to_dict, document_id, store_html_dict
+from indexer.tokenizer import stop_word_eliminator, stemmer, tokenize
 
-dataPath = '../../raw-data'
-indexedDocumentsPath = '../../indexed-data'
+inverted_index = {}
 
-# TODO: keep location of each token
+def save_inverted_index():
+    pass
+    # pickle.dump(inverted_index, indexed_doc, pickle.HIGHEST_PROTOCOL)
 
-
-def element_extractor(file, elements_list):
-    data = {}
-    for element_type in elements_list:
-        if element_type not in data.keys():
-            data[element_type] = list()
-        for element in file.find_all(element_type):
-            data[element_type].append(element.get_text())
-    # json_data = json.dumps(data)
-    return data
-
-
-def indexer(file_dict, extracted, type):
-    for i in range(len(extracted[type])):
-        stopwords_removed = stop_word_eliminator(extracted[type][i])
-        for token in stopwords_removed:
-            stemmed_token = stemmer(token)
-            if stemmed_token not in file_dict.keys():
-                file_dict[stemmed_token] = list()
-            info = dict()
-            info[type] = i
-            file_dict[stemmed_token].append(info)
-
-            # {token1: [{p:1}, {p:5}]}
-
-    return file_dict
-
+def load_inverted_index():
+    pass
+    # pickle.load(indexed_doc)
 
 def main():
-    for folderName in os.listdir(os.path.join(os.getcwd(), dataPath)):
-        if folderName.isdigit():
-            if int(folderName) == 0: #remove in future
-                print "in folder: " + folderName
-                for fileName in os.listdir(os.path.join(os.getcwd(), dataPath, folderName)):
-                    if fileName.isdigit():
-                        if int(fileName) == 3: #remove in future
-                            print "in file: " + fileName
-                            with open(os.path.join(dataPath, folderName, fileName), 'r') as data_file:
-                                data = data_file.read()
-                                data_file.close()
+    global inverted_index
 
-                                inverted_index = dict() #for each file
+    for folder_name in os.listdir(os.path.join(os.getcwd(), RAW_DATA_BASE_PATH)):
+        if folder_name.isdigit():
+            if int(folder_name) == 0: #remove in future
+                print "in folder: " + folder_name
+                for file_name in os.listdir(os.path.join(os.getcwd(), RAW_DATA_BASE_PATH, folder_name)):
+                    if file_name.isdigit():
+                        if int(file_name) == 3: #remove in future
+                            print "in file: " + file_name
+                            doc_id = document_id(folder_name,file_name)
+                            html_dict = transform_html_to_dict(doc_id)
+                            store_html_dict(doc_id, html_dict)
 
-                                soup = BeautifulSoup(data, "html.parser")
-                                if soup.find('html') == None: #Non html files
-                                    continue
-                                for script in soup(["script", "style"]):
-                                    script.extract()
-                                # print soup.prettify()
-                                extracted = element_extractor(soup, ['p'])
-                                inverted_index = indexer(inverted_index, extracted, 'p')
+                            for field in HTML_DICT_FIELDS_WEIGHT:
+                                for token,offset in tokenize(html_dict[field[0]]):
+                                    if not inverted_index.has_key(token):
+                                        inverted_index[token] = {}
 
-                                if not os.path.exists(os.path.join(indexedDocumentsPath, folderName)):
-                                    os.makedirs(os.path.join(indexedDocumentsPath, folderName))
-                                with open(os.path.join(indexedDocumentsPath, folderName, fileName), 'wb') as indexed_doc:
-                                    pickle.dump(inverted_index, indexed_doc, pickle.HIGHEST_PROTOCOL)
-                                    # pickle.load(indexed_doc)
+                                    if not inverted_index[token].has_key(doc_id):
+                                        inverted_index[token][doc_id] = []
 
-                                # print list(soup.children)
-
-                                # text = soup.get_text()
-                                # # break into lines and remove leading and trailing space on each
-                                # lines = (line.strip() for line in text.splitlines())
-                                # # break multi-headlines into a line each
-                                # chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-                                # # drop blank lines
-                                # text = '\n'.join(chunk for chunk in chunks if chunk)
-                                # print text
-                                #
-                                # print data_file
+                                    inverted_index[token][doc_id].append((field,offset))
+    save_inverted_index()
 
 if __name__ == "__main__":
     main()
