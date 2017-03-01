@@ -1,6 +1,9 @@
+import os
 import re
+import pickle
 from bs4 import BeautifulSoup
-from constants import RAW_DATA_BASE_PATH
+from constants import RAW_DATA_BASE_PATH, INDEXED_DATA_BASE_PATH
+
 
 def visible(element):
     if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
@@ -57,10 +60,18 @@ def document_id(dir_name, file_name):
 
 
 def store_html_dict(document_id, html_dict):
-    pass
+    folder_name, file_name = unpack_document_id(document_id)
+
+    if not os.path.exists(os.path.join(INDEXED_DATA_BASE_PATH, folder_name)):
+        os.makedirs(os.path.join(INDEXED_DATA_BASE_PATH, folder_name))
+    with open(os.path.join(INDEXED_DATA_BASE_PATH, folder_name, file_name), 'wb') as indexed_doc:
+        pickle.dump(html_dict, indexed_doc, pickle.HIGHEST_PROTOCOL)
+
 
 def load_html_dict(document_id):
-    pass
+    folder_name, file_name = unpack_document_id(document_id)
+    with open(os.path.join(INDEXED_DATA_BASE_PATH, folder_name, file_name), 'r') as indexed_doc:
+        return pickle.load(indexed_doc)
 
 # def element_extractor(file, elements_list):
 #     data = {}
