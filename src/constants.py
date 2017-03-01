@@ -1,5 +1,6 @@
 RAW_DATA_BASE_PATH = '../../raw-data'
 INDEXED_DATA_BASE_PATH = '../../indexed-data'
+INVERTED_INDEX_FILE = ''
 
 HTML_DICT_FIELDS_WEIGHT = [
     ("title", 2),

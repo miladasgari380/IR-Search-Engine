@@ -1,8 +1,10 @@
 import os
+import io
 import re
 import pickle
 from bs4 import BeautifulSoup
 from constants import RAW_DATA_BASE_PATH, INDEXED_DATA_BASE_PATH
+
 
 
 def visible(element):
@@ -12,46 +14,51 @@ def visible(element):
     #     return False
     return True
 
+
 def transform_html_to_dict(document_id):
-    dict = {}
+    html_dict = {}
     folder_name, file_name = unpack_document_id(document_id)
-    with open(RAW_DATA_BASE_PATH+"/"+folder_name+"/"+file_name, "r") as data_file:
+    with io.open(RAW_DATA_BASE_PATH+"/"+folder_name+"/"+file_name, "r", encoding='utf8') as data_file:
         data = data_file.read()
         soup = BeautifulSoup(data, "html.parser")
         for script in soup(["script", "style"]):
             script.extract()
 
-        if soup.find('html') == None:  # Non html files
+        if soup.find('html') is None:  # Non html files
             print "Not HTML file!"
-            return
-        dict['title'] = soup.title.string
+            return None
+        html_dict['title'] = soup.title.string
         desc = soup.find_all(attrs={"name": "description"})
         if len(desc) > 0:
-            dict['description'] = desc[0]['content'].encode('utf-8')
+            html_dict['description'] = cleanup_text(desc[0]['content'])
         else:
-            dict['description'] = None
+            html_dict['description'] = None
         keywords = soup.find_all(attrs={"name": "keywords"})
         if len(keywords) > 0:
-            dict['keywords'] = keywords[0]['content'].encode('utf-8')
+            html_dict['keywords'] = cleanup_text(keywords[0]['content'])
         else:
-            dict['keywords'] = None
+            html_dict['keywords'] = None
 
         for script in soup(["title"]):
             script.extract()
 
         text = soup.get_text()
-        regex = re.compile('[^a-zA-Z]')
-        text = regex.sub(' ', text)
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = ' '.join(chunk for chunk in chunks if chunk)
-        # print text
-        dict['body'] = text
-    return dict
+        html_dict['body'] = cleanup_text(text)
+    return html_dict
 
 
-def unpack_document_id(document_id):
-    file_folder_info = document_id.split("/")
+# TODO: Change regular expression to not delete non-english words
+# TODO: We need to decide here what should be indexed
+def cleanup_text(text):
+    regex = re.compile('[^a-zA-Z0-9\'_-]')
+    text = regex.sub(' ', text)
+    lines = (line.strip() for line in text.splitlines())
+    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+    return ' '.join(chunk for chunk in chunks if chunk)
+
+
+def unpack_document_id(doc_id):
+    file_folder_info = doc_id.split("/")
     return file_folder_info[0], file_folder_info[1]
 
 
@@ -59,8 +66,8 @@ def document_id(dir_name, file_name):
     return dir_name+"/"+file_name
 
 
-def store_html_dict(document_id, html_dict):
-    folder_name, file_name = unpack_document_id(document_id)
+def store_html_dict(doc_id, html_dict):
+    folder_name, file_name = unpack_document_id(doc_id)
 
     if not os.path.exists(os.path.join(INDEXED_DATA_BASE_PATH, folder_name)):
         os.makedirs(os.path.join(INDEXED_DATA_BASE_PATH, folder_name))
@@ -68,10 +75,11 @@ def store_html_dict(document_id, html_dict):
         pickle.dump(html_dict, indexed_doc, pickle.HIGHEST_PROTOCOL)
 
 
-def load_html_dict(document_id):
-    folder_name, file_name = unpack_document_id(document_id)
+def load_html_dict(doc_id):
+    folder_name, file_name = unpack_document_id(doc_id)
     with open(os.path.join(INDEXED_DATA_BASE_PATH, folder_name, file_name), 'r') as indexed_doc:
         return pickle.load(indexed_doc)
+
 
 # def element_extractor(file, elements_list):
 #     data = {}
@@ -84,7 +92,7 @@ def load_html_dict(document_id):
 #     return data
 #
 #
-# def indexer(file_dict, extracted, type):
+# def indexing(file_dict, extracted, type):
 #     for i in range(len(extracted[type])):
 #         stopwords_removed = stop_word_eliminator(extracted[type][i])
 #         for token in stopwords_removed:
@@ -106,7 +114,7 @@ def load_html_dict(document_id):
 #     script.extract()
 # # print soup.prettify()
 # extracted = element_extractor(soup, ['p'])
-# inverted_index = indexer(inverted_index, extracted, 'p')
+# inverted_index = indexing(inverted_index, extracted, 'p')
 
 # print list(soup.children)
 
