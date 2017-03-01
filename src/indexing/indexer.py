@@ -1,18 +1,20 @@
 import os
+import pickle
 
-from constants import RAW_DATA_BASE_PATH, HTML_DICT_FIELDS_WEIGHT
+from constants import RAW_DATA_BASE_PATH, HTML_DICT_FIELDS_WEIGHT, INVERTED_INDEX_FILE
 from indexing.html_parser import document_id, transform_html_to_dict, store_html_dict
 from indexing.tokenizer import tokenize
 
 inverted_index = {}
 
+
 def save_inverted_index():
-    pass
-    # pickle.dump(inverted_index, indexed_doc, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(inverted_index, INVERTED_INDEX_FILE, pickle.HIGHEST_PROTOCOL)
+
 
 def load_inverted_index():
-    pass
-    # pickle.load(indexed_doc)
+    return pickle.load(INVERTED_INDEX_FILE)
+
 
 def main():
     global inverted_index
