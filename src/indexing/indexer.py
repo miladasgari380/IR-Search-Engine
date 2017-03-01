@@ -1,10 +1,8 @@
 import os
-import pickle
-from bs4 import BeautifulSoup
 
 from constants import RAW_DATA_BASE_PATH, HTML_DICT_FIELDS_WEIGHT
-from src.indexer.html_parser import transform_html_to_dict, document_id, store_html_dict
-from src.indexer.tokenizer import stop_word_eliminator, stemmer, tokenize
+from indexing.html_parser import document_id, transform_html_to_dict, store_html_dict
+from indexing.tokenizer import tokenize
 
 inverted_index = {}
 
@@ -32,6 +30,7 @@ def main():
                             store_html_dict(doc_id, html_dict)
 
                             for field in HTML_DICT_FIELDS_WEIGHT:
+                                if html_dict[field[0]] is None: continue
                                 for token,offset in tokenize(html_dict[field[0]]):
                                     if not inverted_index.has_key(token):
                                         inverted_index[token] = {}
