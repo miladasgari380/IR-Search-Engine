@@ -25,16 +25,20 @@ def transform_html_to_dict(document_id):
             script.extract()
 
         if soup.find('html') is None:  # Non html files
-            print "Not HTML file!"
+            # print "Not HTML file!"
             return None
-        html_dict['title'] = soup.title.string
+
+        if soup.title is not None:
+            html_dict['title'] = soup.title.string
+        else:
+            html_dict['title'] = None
         desc = soup.find_all(attrs={"name": "description"})
-        if len(desc) > 0:
+        if len(desc) > 0 and desc[0].has_key("content"):
             html_dict['description'] = cleanup_text(desc[0]['content'])
         else:
             html_dict['description'] = None
         keywords = soup.find_all(attrs={"name": "keywords"})
-        if len(keywords) > 0:
+        if len(keywords) > 0 and keywords[0].has_key("content"):
             html_dict['keywords'] = cleanup_text(keywords[0]['content'])
         else:
             html_dict['keywords'] = None

@@ -12,6 +12,8 @@ stop_words = set(stopwords.words('english'))
 def tokenize(text):
     ret = []
     last_offset = 0
+    if not text:
+        return ret
     for token in wordpunct_tokenize(text):
         processed_token = token.lower().strip()
         if not processed_token or len(processed_token)<3 or is_stop_word(token):
