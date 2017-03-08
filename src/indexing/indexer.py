@@ -14,7 +14,8 @@ def save_inverted_index():
 
 
 def load_inverted_index():
-    return pickle.load(INVERTED_INDEX_FILE)
+    with open(INVERTED_INDEX_FILE, 'r') as f:
+        return pickle.load(f)
 
 
 def main():
