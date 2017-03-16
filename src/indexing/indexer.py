@@ -34,15 +34,15 @@ def main():
                             num_of_files += 1
                             store_html_dict(doc_id, html_dict)
 
-                            for field in HTML_DICT_FIELDS_WEIGHT:
-                                for token,offset in tokenize(html_dict[field[0]]):
+                            for field in HTML_DICT_FIELDS_WEIGHT.keys():
+                                for token,offset in tokenize(html_dict[field]):
                                     if not inverted_index.has_key(token):
                                         inverted_index[token] = {}
 
                                     if not inverted_index[token].has_key(doc_id):
                                         inverted_index[token][doc_id] = []
 
-                                    inverted_index[token][doc_id].append((field,offset))
+                                    inverted_index[token][doc_id].append((field, offset))
     save_inverted_index()
     print "number of files: "+str(num_of_files)
     print "number of unique words: "+str(len(inverted_index.keys()))

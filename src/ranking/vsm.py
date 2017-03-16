@@ -38,21 +38,23 @@ def create_vector_space_model():
     print "reached"
     counter = 0
     for doc_id,words in vsm.iteritems():
+        max_value = max(words.values())
         for word,word_frequency in words.iteritems():
             idf = math.log(NUMBER_OF_DOCUMENTS*1.0 / len(inverted_index[word].keys()))
-            tf = 0.5 + (0.5 * (word_frequency*1.0 / max(words.values())))
+            tf = 0.5 + (0.5 * (word_frequency*1.0 / max_value))
+            # tf = 1 + math.log(word_frequency*1.0)
             vsm[doc_id][word] = tf*idf
         counter += 1
         if counter%100==0:
             print counter
-
+    normalize_vsm()
     save_vector_space_model()
 
 
 def normalize_vsm():
     global vsm
     counter =0
-    vsm = load_vector_space_model()
+    # vsm = load_vector_space_model()
     for doc_id,words in vsm.iteritems():
         for word,tfidf in words.iteritems():
             vsm[doc_id][word] /= math.sqrt(sum([math.pow(x,2) for x in words.values()]))
@@ -60,7 +62,7 @@ def normalize_vsm():
         counter += 1
         if counter % 500 == 0:
             print counter
-    save_vector_space_model()
+    # save_vector_space_model()
 
 
 def calculate_similarity(vector1,vector2):
@@ -126,11 +128,11 @@ def load_url_dict():
     with open(URL_FILE) as f:
         return json.load(f)
 
-# normalize_vsm()
-# create_vector_space_model()
-vsm = load_vector_space_model()
 print "SVM has been loaded!"
 inverted_index = load_inverted_index()
+# normalize_vsm()
+create_vector_space_model()
+# vsm = load_vector_space_model()
 print "Inverted Index has been loaded!"
-file_to_url_dict = load_url_dict()
+# file_to_url_dict = load_url_dict()
 print "URL dict has been loaded!"

@@ -6,9 +6,9 @@ URL_FILE = RAW_DATA_BASE_PATH + '/bookkeeping.json'
 
 NUMBER_OF_DOCUMENTS = 34306
 
-HTML_DICT_FIELDS_WEIGHT = [
-    ("title", 2),
-    ("keywords", 1),
-    ("description", 1),
-    ("body", 1)
-]
+HTML_DICT_FIELDS_WEIGHT = {
+    "title": 4,
+    "keywords": 3,
+    "description": 2,
+    "body": 1
+}
