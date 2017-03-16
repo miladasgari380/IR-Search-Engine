@@ -10,7 +10,7 @@
     <div class="container">
         <div class="row">
           <div class="col-sm-10">
-            <form class="navbar-form navbar-left" method="POST" role="search" style="width: 100%" action="{{ url_for('search') }}">
+            <form class="navbar-form navbar-left" method="GET" role="search" style="width: 100%" action="{{ url_for('search_me') }}">
               <div class="form-group col-sm-8" >
                 <input type="text" class="form-control" style="width: 100%" name="query" placeholder="Search">
               </div>

@@ -5,8 +5,6 @@ from constants import RAW_DATA_BASE_PATH, HTML_DICT_FIELDS_WEIGHT, INVERTED_INDE
 from indexing.html_parser import document_id, transform_html_to_dict, store_html_dict
 from indexing.tokenizer import tokenize
 
-inverted_index = {}
-
 
 def save_inverted_index():
     with open(INVERTED_INDEX_FILE, 'wb') as f:
@@ -50,4 +48,5 @@ def main():
     print "number of unique words: "+str(len(inverted_index.keys()))
 
 if __name__ == "__main__":
+    inverted_index = {}
     main()
