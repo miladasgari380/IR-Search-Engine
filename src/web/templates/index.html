@@ -10,4 +10,16 @@
     </p>
     <hr/>
     {% endfor %}
+    <table class="table">
+        <thead>
+          <tr>
+            <th>NDCG@5</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="success">
+            <td>{{ndcg}}</td>
+          </tr>
+        </tbody>
+      </table>
 {% endblock %}

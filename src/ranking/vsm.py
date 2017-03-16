@@ -4,7 +4,7 @@ import pickle
 
 import operator
 
-from constants import NUMBER_OF_DOCUMENTS, VSM_FILE, URL_FILE
+from constants import NUMBER_OF_DOCUMENTS, VSM_FILE, URL_FILE, HTML_DICT_FIELDS_WEIGHT
 from indexing.html_parser import cleanup_text, load_html_dict
 from indexing.indexer import load_inverted_index
 from indexing.tokenizer import tokenize
@@ -31,7 +31,10 @@ def create_vector_space_model():
         for doc_id,postings in docs.iteritems():
             if not vsm.has_key(doc_id):
                 vsm[doc_id] = dict()
-            vsm[doc_id][word] = len(postings)
+            frequency = 0
+            for posting in postings:
+                frequency += HTML_DICT_FIELDS_WEIGHT[posting[0]]
+            vsm[doc_id][word] = frequency
         counter += 1
         if counter % 1000 == 0: print counter
 
@@ -88,8 +91,9 @@ def search_vsm(query):
         return []
 
     doc_ids = set()
+    doc_ids = doc_ids.union(inverted_index[query_vector.keys()[0]].keys())
     for word in query_vector.keys():
-        doc_ids = doc_ids.union(inverted_index[word].keys())
+        doc_ids = doc_ids.intersection(inverted_index[word].keys())
 
     ranked_results = []
 
@@ -98,7 +102,7 @@ def search_vsm(query):
 
     ranked_results = sorted(ranked_results, key=operator.itemgetter(1))
     ranked_results = [ranked_result[0] for ranked_result in ranked_results]
-    return ranked_results[:10]
+    return ranked_results[:5]
 
 
 def get_pages_information(doc_ids):
@@ -128,11 +132,11 @@ def load_url_dict():
     with open(URL_FILE) as f:
         return json.load(f)
 
-print "SVM has been loaded!"
+print "VSM has been loaded!"
 inverted_index = load_inverted_index()
 # normalize_vsm()
-create_vector_space_model()
-# vsm = load_vector_space_model()
+# create_vector_space_model()
+vsm = load_vector_space_model()
 print "Inverted Index has been loaded!"
-# file_to_url_dict = load_url_dict()
+file_to_url_dict = load_url_dict()
 print "URL dict has been loaded!"
