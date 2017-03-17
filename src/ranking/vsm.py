@@ -8,6 +8,7 @@ from constants import NUMBER_OF_DOCUMENTS, VSM_FILE, URL_FILE, HTML_DICT_FIELDS_
 from indexing.html_parser import cleanup_text, load_html_dict
 from indexing.indexer import load_inverted_index
 from indexing.tokenizer import tokenize
+from pagerank.pagerank import load_pagerank
 
 vsm = dict()
 
@@ -98,9 +99,10 @@ def search_vsm(query):
     ranked_results = []
 
     for doc_id in doc_ids:
-        ranked_results.append((doc_id,calculate_similarity(vsm[doc_id],query_vector)))
+        ranked_results.append((doc_id, calculate_similarity(vsm[doc_id],query_vector) + pagerank[doc_id]))
+        # ranked_results.append((doc_id, calculate_similarity(vsm[doc_id],query_vector)))
 
-    ranked_results = sorted(ranked_results, key=operator.itemgetter(1))
+    ranked_results = sorted(ranked_results, key=operator.itemgetter(1), reverse=True)
     ranked_results = [ranked_result[0] for ranked_result in ranked_results]
     return ranked_results[:5]
 
@@ -134,8 +136,8 @@ def load_url_dict():
 
 print "VSM has been loaded!"
 inverted_index = load_inverted_index()
-# normalize_vsm()
 # create_vector_space_model()
+pagerank = load_pagerank()
 vsm = load_vector_space_model()
 print "Inverted Index has been loaded!"
 file_to_url_dict = load_url_dict()

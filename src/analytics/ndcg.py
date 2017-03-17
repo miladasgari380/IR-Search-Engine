@@ -5,6 +5,8 @@ from google import search
 from w3lib.url import canonicalize_url
 import math
 
+from constants import GOOGLE_FILE
+
 
 def google_search(query):
     ans = list()
@@ -16,7 +18,7 @@ def google_search(query):
 
 def calculate_ndcg_5(our_urls, query):
     # google_results = google_search(query)
-    with open('google-results', 'r') as google_dic:
+    with open(GOOGLE_FILE, 'r') as google_dic:
         google_results_dic = pickle.load(google_dic)
 
     google_results = google_results_dic[query]
@@ -25,7 +27,7 @@ def calculate_ndcg_5(our_urls, query):
     for i in range(len(our_urls)):
         for j in range(len(google_results)):
             if remove_proto_from_url(our_urls[i]) == remove_proto_from_url(google_results[j]):
-                ndcg += ((5.0 - j) / (math.log(i + 1)))
+                ndcg += ((5.0 - j) / (math.log(i + 2)))
                 break
     
     return (ndcg/sum(range(len(google_results),0, -1)))
