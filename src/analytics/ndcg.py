@@ -25,7 +25,7 @@ def calculate_ndcg_5(our_urls, query):
 
     ndcg = 0
     for i in range(len(our_urls)):
-        for j in range(len(google_results)):
+        for j in range(5):
             if remove_proto_from_url(our_urls[i]) == remove_proto_from_url(google_results[j]):
                 ndcg += ((5.0 - j) / (math.log(i + 2)))
                 break

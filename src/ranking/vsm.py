@@ -103,8 +103,9 @@ def search_vsm(query):
         # ranked_results.append((doc_id, calculate_similarity(vsm[doc_id],query_vector)))
 
     ranked_results = sorted(ranked_results, key=operator.itemgetter(1), reverse=True)
+
     ranked_results = [ranked_result[0] for ranked_result in ranked_results]
-    return ranked_results[:5]
+    return ranked_results[:15]
 
 
 def get_pages_information(doc_ids):
