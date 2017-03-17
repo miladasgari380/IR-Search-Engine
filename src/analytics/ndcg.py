@@ -1,3 +1,4 @@
+import pickle
 from urlparse import urlparse
 
 from google import search
@@ -7,14 +8,18 @@ import math
 
 def google_search(query):
     ans = list()
-    query += " site:ics.uci.edu"
-    for url in search(query, tld='es', lang='es', stop=10):
+    query += " site:ics.uci.edu -inurl:pdf"
+    for url in search(query, tld='es', lang='es', stop=5):
         ans.append(url)
     return ans
 
 
 def calculate_ndcg_5(our_urls, query):
-    google_results = google_search(query)
+    # google_results = google_search(query)
+    with open('google-results', 'r') as google_dic:
+        google_results_dic = pickle.load(google_dic)
+
+    google_results = google_results_dic[query]
 
     ndcg = 0
     for i in range(len(our_urls)):
@@ -30,5 +35,8 @@ def remove_proto_from_url(url):
     parsed = urlparse(url)
     url = parsed.netloc+parsed.path+"?"+parsed.query
     url = canonicalize_url(url)
-    print "aft",url
+    if url[len(url) - 1] == '/':
+        url = url[:len(url)-1]
+
+    # print "aft",url
     return url
