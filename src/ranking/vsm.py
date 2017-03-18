@@ -32,6 +32,7 @@ def create_vector_space_model():
         for doc_id,postings in docs.iteritems():
             if not vsm.has_key(doc_id):
                 vsm[doc_id] = dict()
+            # frequency = len(postings)
             frequency = 0
             for posting in postings:
                 frequency += HTML_DICT_FIELDS_WEIGHT[posting[0]]
@@ -60,8 +61,9 @@ def normalize_vsm():
     counter =0
     # vsm = load_vector_space_model()
     for doc_id,words in vsm.iteritems():
+        sum_of_powers = math.sqrt(sum([math.pow(x,2) for x in words.values()]))
         for word,tfidf in words.iteritems():
-            vsm[doc_id][word] /= math.sqrt(sum([math.pow(x,2) for x in words.values()]))
+            vsm[doc_id][word] = tfidf/(sum_of_powers*1.0)
 
         counter += 1
         if counter % 500 == 0:
@@ -88,6 +90,11 @@ def search_vsm(query):
             tf = 1.0
             query_vector[word] = tf * idf
 
+    sum_of_powers = math.sqrt(sum([math.pow(x,2) for x in query_vector.values()]))
+    for word,tfidf in query_vector.iteritems():
+        query_vector[word] = tfidf/(sum_of_powers*1.0)
+
+
     if not query_vector:
         return []
 
@@ -103,9 +110,9 @@ def search_vsm(query):
         # ranked_results.append((doc_id, calculate_similarity(vsm[doc_id],query_vector)))
 
     ranked_results = sorted(ranked_results, key=operator.itemgetter(1), reverse=True)
-
+    # print ranked_results[:20]
     ranked_results = [ranked_result[0] for ranked_result in ranked_results]
-    return ranked_results[:15]
+    return ranked_results[:5]
 
 
 def get_pages_information(doc_ids):

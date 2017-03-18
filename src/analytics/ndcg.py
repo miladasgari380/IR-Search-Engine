@@ -6,13 +6,13 @@ from w3lib.url import canonicalize_url
 import math
 
 from constants import GOOGLE_FILE
-from pagerank.pagerank import load_file_to_url_dict, cleanup_url
+from pagerank.pagerank import load_file_to_url_dict, cleanup_url, load_url_to_file_dict
 
 
 def google_search(query):
     ans = list()
     query += " site:ics.uci.edu -inurl:pdf"
-    for url in search(query, tld='es', lang='es', stop=5):
+    for url in search(query, tld='es', lang='es', stop=50):
         ans.append(url)
     return ans
 
@@ -26,6 +26,9 @@ def calculate_ndcg_5(our_urls, query):
     google_results = get_five_best_from_google(google_results)
 
     ndcg = 0
+
+    print our_urls
+    print google_results
 
     for i in range(len(our_urls)):
         for j in range(len(google_results)):
@@ -48,10 +51,10 @@ def calculate_ndcg_5(our_urls, query):
 
 def get_five_best_from_google(google_results):
     ans = list()
-    file_to_url = load_file_to_url_dict()
+    url_to_file = load_url_to_file_dict()
     for google_link in google_results:
-        if google_link in file_to_url.values():
-            ans.append(google_link)
-        if len(ans >= 5):
+        if url_to_file.has_key(cleanup_url(google_link)):
+            ans.append(cleanup_url(google_link))
+        if len(ans) >= 5:
             return ans
     return ans

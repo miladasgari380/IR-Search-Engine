@@ -14,8 +14,8 @@ def search_me():
     query = request.args.get('query')
     info = search(query)
     print [result['url'] for result in info]
-    # ndcg = calculate_ndcg_5([result['url'] for result in info], query)
-    ndcg = 2
+    ndcg = calculate_ndcg_5([result['url'] for result in info], query)
+    # ndcg = 2
     return render_template('index.html', info=info, query=query, ndcg=ndcg)
 
 
